@@ -1,0 +1,52 @@
+{
+  "name": "document-compressor",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Modular Monolith Document Compressor for PDF, DOCX, and DOC files",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:contract": "vitest run tests/contract",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "compose:up": "docker compose up -d",
+    "compose:stop": "docker compose stop",
+    "compose:down": "docker compose down",
+    "compose:build": "docker compose up --build -d",
+    "compose:logs": "docker compose logs -f"
+  },
+  "dependencies": {
+    "@types/better-sqlite3": "^9.6.0",
+    "adm-zip": "^0.5.16",
+    "better-sqlite3": "^13.0.3",
+    "clsx": "^2.1.1",
+    "drizzle-orm": "^0.45.2",
+    "lucide-react": "^0.475.0",
+    "next": "^14.2.24",
+    "pdf-lib": "^1.17.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "sharp": "^0.33.5",
+    "tailwind-merge": "^3.0.1",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.2.0",
+    "@types/adm-zip": "^0.5.7",
+    "@types/node": "^20.17.19",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitest/coverage-v8": "^3.2.7",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.35",
+    "postcss": "^8.5.2",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}
