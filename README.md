@@ -83,8 +83,8 @@ src/
 ### Quickstart (Local)
 ```bash
 # 1. Clone repository
-git clone https://github.com/ygorevaldt/compressor-de-documentos.git
-cd compressor-de-documentos
+git clone https://github.com/ygorevaldt/document-compressor.git
+cd document-compressor
 
 # 2. Install dependencies
 npm install
