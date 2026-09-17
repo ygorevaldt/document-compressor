@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "description": "Modular Monolith Document Compressor for PDF, DOCX, and DOC files",
+  "author": "Ygor Evaldt <evaldtygor@gmail.com>",
+  "license": "MIT",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

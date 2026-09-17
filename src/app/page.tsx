@@ -314,13 +314,23 @@ export default function HomePage() {
         )}
       </section>
 
-      {/* Feature Badges Footer */}
-      <footer className="py-6 border-t border-slate-200 dark:border-slate-800/80 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <FileStack className="w-4 h-4 text-slate-400" />
-          <span>Processamento local com deduplicação inteligente por SHA-256</span>
+      {/* Footer */}
+      <footer className="py-6 border-t border-slate-200/80 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-2 text-center sm:text-left">
+          <FileStack className="w-4 h-4 text-slate-400 flex-shrink-0" />
+          <span>Processamento com deduplicação inteligente por SHA-256</span>
         </div>
-        <p>Privado e seguro &mdash; seus arquivos são processados estritamente no seu ambiente.</p>
+        <div className="flex items-center gap-1.5 text-center sm:text-right">
+          <span>Criado por</span>
+          <a
+            href="https://github.com/ygorevaldt"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-slate-800 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors underline underline-offset-2"
+          >
+            Ygor Evaldt
+          </a>
+        </div>
       </footer>
     </main>
   );

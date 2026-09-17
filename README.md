@@ -31,6 +31,11 @@
 - **Single & Batch Modes**:
   - Process single files with instant before/after metrics.
   - Process batches of up to 10 mixed files with error isolation and bulk ZIP bundle download.
+- **Light & Dark Mode**:
+  - Automatically matches system preference by default, with an accessible 3-state switcher (Claro, Sistema, Escuro).
+- **Safe & Confidential Storage**:
+  - Local documents are strictly isolated in `storage/` and never tracked by Git.
+  - In cloud/production environments, files use ephemeral storage (`os.tmpdir()`) or mounted volumes (`STORAGE_DIR`).
 - **Clean Minimalist UI**:
   - Built with Tailwind CSS and shadcn/ui components for a frictionless, distraction-free user experience.
 
@@ -78,7 +83,7 @@ src/
 ### Quickstart (Local)
 ```bash
 # 1. Clone repository
-git clone <repo-url>
+git clone https://github.com/ygorevaldt/compressor-de-documentos.git
 cd compressor-de-documentos
 
 # 2. Install dependencies
@@ -116,7 +121,7 @@ npm run compose:down
 - **Endpoint**: `POST /api/compress`
 - **Content-Type**: `multipart/form-data`
 - **Fields**:
-  - `file`: Binary file (`.pdf`, `.docx`, `.doc` $\le 100$MB)
+  - `file`: Binary file (`.pdf`, `.docx`, `.doc` $\le 500$MB)
   - `profile`: `recommended` | `maximum` | `high_fidelity` (Optional, default: `recommended`)
 - **Response**:
 ```json
@@ -146,7 +151,7 @@ npm run compose:down
 - **Endpoint**: `POST /api/batch/compress`
 - **Content-Type**: `multipart/form-data`
 - **Fields**:
-  - `files`: Multiple binary files (up to 10)
+  - `files`: Multiple binary files (up to 10, $\le 500$MB each)
   - `profile`: `recommended` | `maximum` | `high_fidelity`
 - **Response**: Returns per-file status with error isolation and a bulk ZIP download URL (`zipDownloadUrl`).
 
@@ -179,5 +184,13 @@ npm run build
 
 ---
 
-## 📜 License
-MIT
+## 👤 Autor
+
+Criado e desenvolvido por **Ygor Evaldt**  
+- GitHub: [@ygorevaldt](https://github.com/ygorevaldt)
+
+---
+
+## 📜 Licença
+
+Distribuído sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
