@@ -13,7 +13,8 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { CompressionResult, CompressionProfileName } from '@/core/types/document';
 import { BatchCompressionResult } from '@/modules/compression/services/batch-compression-service';
-import { Sparkles, AlertCircle, FileStack, Files, FileText, ArrowRight } from 'lucide-react';
+import { base64ToBlob, getMimeType } from '@/lib/utils';
+import { Sparkles, AlertCircle, ShieldCheck, Files, FileText, ArrowRight } from 'lucide-react';
 
 type Mode = 'single' | 'batch';
 type ProcessState = 'idle' | 'compressing' | 'completed' | 'error';
@@ -35,6 +36,14 @@ export default function HomePage() {
   const [batchResult, setBatchResult] = React.useState<BatchCompressionResult | null>(null);
 
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+  const createdUrlsRef = React.useRef<string[]>([]);
+
+  // Limpar ObjectURLs quando desmontar
+  React.useEffect(() => {
+    return () => {
+      createdUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, []);
 
   // Single file selection handler
   const handleSingleFileSelect = async (file: File) => {
@@ -80,7 +89,20 @@ export default function HomePage() {
         throw new Error(json.error?.message || 'A compressão falhou. Por favor, tente novamente.');
       }
 
-      setSingleResult(json.data);
+      let downloadUrl = '';
+      if (json.data.base64) {
+        const blob = base64ToBlob(
+          json.data.base64,
+          json.data.mimeType || getMimeType(json.data.format)
+        );
+        downloadUrl = URL.createObjectURL(blob);
+        createdUrlsRef.current.push(downloadUrl);
+      }
+
+      setSingleResult({
+        ...json.data,
+        downloadUrl,
+      });
       setState('completed');
     } catch (err: unknown) {
       clearInterval(progressInterval);
@@ -148,7 +170,31 @@ export default function HomePage() {
         throw new Error(json.error?.message || 'A compressão em lote falhou.');
       }
 
-      setBatchResult(json.data);
+      let zipDownloadUrl: string | undefined;
+      if (json.data.zipBase64) {
+        const zipBlob = base64ToBlob(json.data.zipBase64, 'application/zip');
+        zipDownloadUrl = URL.createObjectURL(zipBlob);
+        createdUrlsRef.current.push(zipDownloadUrl);
+      }
+
+      const items = (json.data.items || []).map((item: any) => {
+        if (item.base64) {
+          const itemBlob = base64ToBlob(item.base64, getMimeType(item.format));
+          const itemUrl = URL.createObjectURL(itemBlob);
+          createdUrlsRef.current.push(itemUrl);
+          return {
+            ...item,
+            downloadUrl: itemUrl,
+          };
+        }
+        return item;
+      });
+
+      setBatchResult({
+        ...json.data,
+        zipDownloadUrl,
+        items,
+      });
       setState('completed');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Ocorreu um erro durante a compressão em lote.';
@@ -158,6 +204,8 @@ export default function HomePage() {
   };
 
   const handleReset = () => {
+    createdUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+    createdUrlsRef.current = [];
     setState('idle');
     setActiveFile(null);
     setSingleProgress(0);
@@ -167,6 +215,7 @@ export default function HomePage() {
     setBatchResult(null);
     setErrorMessage(null);
   };
+
 
   return (
     <main className="min-h-screen flex flex-col justify-between p-4 sm:p-8 md:p-12 max-w-4xl mx-auto">
@@ -317,8 +366,8 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="py-6 border-t border-slate-200/80 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2 text-center sm:text-left">
-          <FileStack className="w-4 h-4 text-slate-400 flex-shrink-0" />
-          <span>Processamento com deduplicação inteligente por SHA-256</span>
+          <ShieldCheck className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+          <span>100% privado e em memória — nenhum documento é armazenado</span>
         </div>
         <div className="flex items-center gap-1.5 text-center sm:text-right">
           <span>Criado por</span>

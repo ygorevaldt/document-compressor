@@ -8,7 +8,4 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
-    volumes:
-      - ./data:/app/data
-      - ./storage:/app/storage
     restart: unless-stopped

@@ -22,11 +22,8 @@
     "compose:logs": "docker compose logs -f"
   },
   "dependencies": {
-    "@types/better-sqlite3": "^9.6.0",
     "adm-zip": "^0.5.16",
-    "better-sqlite3": "^13.0.3",
     "clsx": "^2.1.1",
-    "drizzle-orm": "^0.45.2",
     "lucide-react": "^0.475.0",
     "next": "^14.2.24",
     "pdf-lib": "^1.17.1",

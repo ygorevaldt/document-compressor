@@ -1,38 +1,19 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 import AdmZip from 'adm-zip';
-import Database from 'better-sqlite3';
-import { drizzle } from 'drizzle-orm/better-sqlite3';
-import * as schema from '@/modules/cache/db/schema';
-import { SqliteCompressionCache } from '@/modules/cache/repositories/sqlite-compression-cache';
-import { LocalStorageService } from '@/modules/storage/services/local-storage-service';
 import { CompressionService } from '@/modules/compression/services/compression-service';
 import { BatchCompressionService } from '@/modules/compression/services/batch-compression-service';
 
 describe('BatchCompressionService Unit Tests', () => {
-  let sqlite: Database.Database;
   let batchService: BatchCompressionService;
-  const tempTestStorage = path.join(process.cwd(), 'storage', 'test-batch-runs');
 
   beforeEach(() => {
-    sqlite = new Database(':memory:');
-    sqlite.exec(schema.CREATE_COMPRESSION_CACHE_TABLE);
-    const db = drizzle(sqlite, { schema });
-    const cache = new SqliteCompressionCache(db);
-    const storage = new LocalStorageService({ baseStorageDir: tempTestStorage });
-    const compressionService = new CompressionService({ cache, storage });
-    batchService = new BatchCompressionService({ compressionService, storage, cache });
+    const compressionService = new CompressionService();
+    batchService = new BatchCompressionService({ compressionService });
   });
 
-  afterEach(() => {
-    sqlite.close();
-    if (fs.existsSync(tempTestStorage)) {
-      fs.rmSync(tempTestStorage, { recursive: true, force: true });
-    }
-  });
-
-  it('should process mixed batch with error isolation and zip bundling', async () => {
+  it('should process mixed batch with error isolation and in-memory zip bundling', async () => {
     const pdfPath = path.join(process.cwd(), 'tests', 'fixtures', 'image-sample.pdf');
     const docxPath = path.join(process.cwd(), 'tests', 'fixtures', 'sample.docx');
     const corruptedPath = path.join(process.cwd(), 'tests', 'fixtures', 'corrupted.pdf');
@@ -59,7 +40,9 @@ describe('BatchCompressionService Unit Tests', () => {
     const corruptItem = batchResult.items.find((i) => i.fileName === 'corrupted.pdf');
 
     expect(pdfItem?.status).toBe('completed');
+    expect(pdfItem?.base64).toBeDefined();
     expect(docxItem?.status).toBe('completed');
+    expect(docxItem?.base64).toBeDefined();
     expect(corruptItem?.status).toBe('failed');
     expect(corruptItem?.error).toBeDefined();
 
@@ -71,8 +54,9 @@ describe('BatchCompressionService Unit Tests', () => {
     );
     expect(batchResult.overallReductionPercentage).toBeGreaterThan(0);
 
-    // Zip bundle
+    // Zip bundle in-memory
     expect(batchResult.zipBuffer).toBeDefined();
+    expect(batchResult.zipBase64).toBeDefined();
     const zip = new AdmZip(batchResult.zipBuffer);
     const entries = zip.getEntries().map((e) => e.entryName);
     expect(entries).toContain('doc1-compressed.pdf');
@@ -80,3 +64,4 @@ describe('BatchCompressionService Unit Tests', () => {
     expect(entries).not.toContain('corrupted-compressed.pdf');
   });
 });
+

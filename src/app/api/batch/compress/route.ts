@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
         totalCompressedBytes: result.totalCompressedBytes,
         totalBytesSaved: result.totalBytesSaved,
         overallReductionPercentage: result.overallReductionPercentage,
-        zipDownloadUrl: result.zipDownloadUrl,
+        zipBase64: result.zipBase64,
         items: result.items,
       },
     });

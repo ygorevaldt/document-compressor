@@ -34,9 +34,6 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 
-# Create persistent storage and data directories
-RUN mkdir -p /app/data /app/storage/compressed /app/storage/temp
-
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules

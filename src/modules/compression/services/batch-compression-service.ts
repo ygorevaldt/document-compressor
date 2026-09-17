@@ -3,11 +3,7 @@ import path from 'path';
 import AdmZip from 'adm-zip';
 import { ICompressionService } from '../contracts';
 import { CompressionProfileName, DocumentFormat } from '@/core/types/document';
-import { IStorageService } from '@/modules/storage/contracts';
-import { ICompressionCache } from '@/modules/cache/contracts';
 import { CompressionService } from './compression-service';
-import { LocalStorageService } from '@/modules/storage/services/local-storage-service';
-import { SqliteCompressionCache } from '@/modules/cache/repositories/sqlite-compression-cache';
 
 export interface BatchItemInput {
   readonly fileName: string;
@@ -24,6 +20,7 @@ export interface BatchItemResult {
   readonly bytesSaved?: number;
   readonly reductionPercentage?: number;
   readonly downloadUrl?: string;
+  readonly base64?: string;
   readonly error?: string;
 }
 
@@ -35,28 +32,22 @@ export interface BatchCompressionResult {
   readonly totalBytesSaved: number;
   readonly overallReductionPercentage: number;
   readonly zipBuffer?: Buffer;
+  readonly zipBase64?: string;
   readonly zipDownloadUrl?: string;
   readonly items: BatchItemResult[];
 }
 
 export interface BatchServiceOptions {
   compressionService?: ICompressionService;
-  storage?: IStorageService;
-  cache?: ICompressionCache;
 }
 
 export class BatchCompressionService {
   private readonly compressionService: ICompressionService;
-  private readonly storage: IStorageService;
 
   constructor(options?: BatchServiceOptions) {
-    this.storage = options?.storage || new LocalStorageService();
     this.compressionService =
       options?.compressionService ||
-      new CompressionService({
-        cache: options?.cache || new SqliteCompressionCache(),
-        storage: this.storage,
-      });
+      new CompressionService();
   }
 
   async processBatch(
@@ -90,7 +81,7 @@ export class BatchCompressionService {
           compressedSize: output.compressedSize,
           bytesSaved: output.bytesSaved,
           reductionPercentage: output.reductionPercentage,
-          downloadUrl: `/api/download/${output.jobId}`,
+          base64: output.compressedBuffer.toString('base64'),
         });
 
         totalCompressedBytes += output.compressedSize;
@@ -124,14 +115,11 @@ export class BatchCompressionService {
         : 0;
 
     let zipBuffer: Buffer | undefined;
-    let zipDownloadUrl: string | undefined;
+    let zipBase64: string | undefined;
 
     if (successfulCount > 0) {
       zipBuffer = zip.toBuffer();
-      // Store batch zip in temporary storage for download
-      const tempPath = await (this.storage as LocalStorageService).saveTempFile(zipBuffer, 'zip');
-      const tempFileName = path.basename(tempPath);
-      zipDownloadUrl = `/api/download/batch/${tempFileName}`;
+      zipBase64 = zipBuffer.toString('base64');
     }
 
     return {
@@ -142,8 +130,9 @@ export class BatchCompressionService {
       totalBytesSaved,
       overallReductionPercentage,
       zipBuffer,
-      zipDownloadUrl,
+      zipBase64,
       items: results,
     };
   }
 }
+

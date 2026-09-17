@@ -3,6 +3,8 @@ import { CompressionService } from '@/modules/compression/services/compression-s
 import { CompressionProfileName, DocumentFormat } from '@/core/types/document';
 import { DomainError } from '@/core/errors/domain-errors';
 
+import { getMimeType } from '@/lib/utils';
+
 export const maxDuration = 300;
 export const dynamic = 'force-dynamic';
 
@@ -42,20 +44,25 @@ export async function POST(request: NextRequest) {
       profile,
     });
 
+    const mimeType = getMimeType(rawFormat);
+    const base64 = result.compressedBuffer.toString('base64');
+
     return NextResponse.json({
       success: true,
       data: {
         jobId: result.jobId,
         fileName,
         format: rawFormat,
+        mimeType,
         originalSize: result.originalSize,
         compressedSize: result.compressedSize,
         bytesSaved: result.bytesSaved,
         reductionPercentage: result.reductionPercentage,
         wasCached: result.wasCached,
         wasInflatedPrevented: result.wasInflatedPrevented,
-        downloadUrl: `/api/download/${result.jobId}`,
         executionDurationMs: result.executionDurationMs,
+        base64,
+        downloadUrl: '',
       },
     });
   } catch (err: unknown) {

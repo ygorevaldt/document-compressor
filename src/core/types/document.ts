@@ -70,4 +70,6 @@ export interface CompressionResult {
   readonly wasInflatedPrevented: boolean;
   readonly downloadUrl: string;
   readonly executionDurationMs: number;
+  readonly base64?: string;
+  readonly mimeType?: string;
 }
